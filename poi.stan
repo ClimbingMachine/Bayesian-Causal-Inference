@@ -1,4 +1,4 @@
-/*Stan file for POI data*/
+/*Stan file for Tourist Visits Data*/
 
 data {
   int<lower=1> T;            // Time Index
@@ -12,13 +12,12 @@ data {
 
 
 parameters {
-
-  real<lower = 0> eta1;    // Standard deviation of random effect
-  real<lower = 0> eta2;    // Standard deviation of the individual observations
-  real<lower = 0> eta3;    // Standard deviation of the individual observations
-  real<lower = 0> mu1;     // Standard deviation of the individual observations
-  real tau_0;              // Standard deviation of the individual observations
-  real mu_0;               // Standard deviation of the individual observations
+  
+  real<lower = 0> eta1;     // Standard deviation of the local trend
+  real<lower = 0> eta2;    // Standard deviation of the seasonality (initialization)
+  real<lower = 0> eta3;    // Standard deviation of the seasonality
+  real tau_0;              // Standard deviation of the local trend (initialization)
+  real mu_0;               // Mean of the local trend (initialization)
 
   real beta1;               // Standard deviation of the individual observations
   real beta2;               // Standard deviation of the individual observations
@@ -32,9 +31,9 @@ parameters {
   real mu_beta2;               // Mean of the TMAX
   real mu_beta3;               // Mean of the TMIN
   
-  real<lower = 0> sigma_y; // The error term
-  vector[T] mu;            // Individual mean
-  vector[T] tau;           // Tau
+  real<lower = 0> sigma_y;     // The error term
+  vector[T] mu;                // Individual mean
+  vector[T] tau;               // Tau
 }
 
 model {  
@@ -46,8 +45,8 @@ model {
   
   // Local Trend Prior Block
   tau_0 ~ cauchy(0,2.5);
-  mu_0 ~ cauchy(0,2.5);
-  mu1 ~ cauchy(0, 2.5);
+  mu_0  ~ cauchy(0,2.5);
+  eta1  ~ cauchy(0, 2.5);
   
   // Covariate Prior Block
   mu_beta1 ~ normal(0, 10);
@@ -66,7 +65,7 @@ model {
   mu[1] ~ normal(mu_0, tau_0);                  //Initialization
  
   for(t in 2:T){
-      mu[t] ~ normal(mu[t-1], mu1);
+      mu[t] ~ normal(mu[t-1], eta1);
   }
 
   // Seasonality Trend
@@ -91,9 +90,9 @@ generated quantities {
   real mu_forecast[T_forecast];
   real tau_forecast[T_forecast];
 
-  mu_forecast[1] = normal_rng(mu[T], mu1);
+  mu_forecast[1] = normal_rng(mu[T], eta1);
   for (t in 2:T_forecast) {
-    mu_forecast[t] = normal_rng(mu_forecast[t-1], mu1);
+    mu_forecast[t] = normal_rng(mu_forecast[t-1], eta1);
   }
 
   tau_forecast[1] = normal_rng(-(tau[T]+tau[T-1]+tau[T-2]+tau[T-3]+tau[T-4]+tau[T-5]), eta3);
