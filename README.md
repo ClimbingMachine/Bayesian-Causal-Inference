@@ -6,4 +6,4 @@ The datasets consists of observational tourist visits from 2020-01-01 to 2020-05
 
 These codes are written in Stan through interfaces into R computing environments (RStan). The .R file is the original file. The Bayesian Time Series Model is construncted in /*Stan file for Tourist Visits Data*/.
 
-Finally, datasets for this research can be found online. We are currently asking for research-use permission fromt the client. After the permission, we can upload several estimation results related to it.
+Finally, datasets for this research can be found online. We are currently asking for research-use permission from the client. After the permission, we can upload several estimation results related to it.
